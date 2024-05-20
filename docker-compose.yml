@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://user:password@db:5432/product_db
+      - OFFERS_SERVICE_URL=https://offers.example.com
+      - AUTH_ENDPOINT=https://offers.example.com/auth
+      - REFRESH_TOKEN=99f15cd2-c064-4087-b74a-8b35aff72418
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: product_db
+    ports:
+      - "5432:5432"
