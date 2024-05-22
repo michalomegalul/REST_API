@@ -1,12 +1,17 @@
-import requests
 import atexit
-from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
+from datetime import timedelta
+
+import requests
 from apscheduler.schedulers import SchedulerNotRunningError
+from apscheduler.schedulers.background import BackgroundScheduler
 from flask import current_app
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import create_engine
-from .models import Offer, Product
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
+
+from .models import Offer
+from .models import Product
 
 # Globals to store the access token and its expiration
 access_token = None

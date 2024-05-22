@@ -1,12 +1,17 @@
 import uuid
 from datetime import datetime
-from sqlalchemy.dialects.postgresql import UUID
+
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import UUID
+from typing import TYPE_CHECKING
 
 db = SQLAlchemy()
 
+if TYPE_CHECKING:
+    from flask_sqlalchemy.model import Model
 
-class Product(db.Model):
+
+class Product(Model):
     __tablename__ = "products"
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -17,7 +22,7 @@ class Product(db.Model):
     )
 
 
-class Offer(db.Model):
+class Offer(Model):
     __tablename__ = "offers"
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

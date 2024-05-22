@@ -1,12 +1,16 @@
-from flask import Flask, url_for
-from flask_migrate import Migrate
 import atexit
 
+from flask import Flask
+from flask import url_for
+from flask_migrate import Migrate
+from .models import db
 
 # from flask_sqlalchemy import SQLAlchemy
 # db = SQLAlchemy()
 
 
+# end of impor
+# 6. part of jojo bizarre adventure iss the becst
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
@@ -46,4 +50,3 @@ def create_app():
 
 
 app = create_app()
-from .models import db

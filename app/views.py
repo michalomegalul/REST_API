@@ -1,5 +1,10 @@
-from flask import Blueprint, request, jsonify
-from .models import Product, Offer, db
+from flask import Blueprint
+from flask import jsonify
+from flask import request
+
+from .models import db
+from .models import Offer
+from .models import Product
 from .tasks import fetch_offers
 
 
