@@ -1,10 +1,8 @@
 import atexit
-
 from flask import Flask
 from flask import url_for
 from flask_migrate import Migrate
 from .models import db
-
 # from flask_sqlalchemy import SQLAlchemy
 # db = SQLAlchemy()
 
@@ -20,6 +18,7 @@ def has_no_empty_params(rule):
 def create_app():
     app = Flask(__name__)
     app.config.from_object("config.Config")
+    print(app.config)
     db.init_app(app)
     Migrate(app, db)
 
@@ -28,6 +27,7 @@ def create_app():
     app.register_blueprint(api_bp, url_prefix="/api")
     from .tasks import start_scheduler, stop_scheduler
 
+    stop_scheduler()
     start_scheduler()
     atexit.register(stop_scheduler)
 

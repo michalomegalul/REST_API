@@ -1,18 +1,21 @@
 import pytest
 import psycopg2
 import os
+import requests
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
-API_BASE_URL = "http://0.0.0.0:5000/api"
+API_BASE_URL = os.environ.get("API_BASE_URL")
 
 
-def test_db_exists():
+@pytest.mark.parametrize("table_to_check", ["products", "offers"])
+def test_tables_exist(table_to_check):
     try:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
-        cur.execute("SELECT 1 FROM pg_database WHERE datname='product_db'")
-        result = cur.fetchone()
-        assert result is not None, "Database does not exist"
+
+        cur.execute(f"SELECT to_regclass('{table_to_check}')")
+        result = cur.fetchone()[0]
+        assert result is not None, f"Table '{table_to_check}' does not exist"
     except Exception as e:
         pytest.fail(f"An error occurred: {e}")
     finally:
@@ -20,19 +23,19 @@ def test_db_exists():
             conn.close()
 
 
-def test_tables_exist():
-    try:
-        conn = psycopg2.connect(DATABASE_URL)
-        cur = conn.cursor()
-        tables_to_check = ["products", "offers"]
-        for table in tables_to_check:
-            cur.execute(f"SELECT to_regclass('{table}')")
-            result = cur.fetchone()[0]
-            assert (
-                result is not None
-            ), f"Table '{table}' does not exist"  # This is still valid
-    except Exception as e:
-        pytest.fail(f"An error occurred: {e}")
-    finally:
-        if conn:
-            conn.close()
+# def clean_up():
+#     conn = psycopg2.connect(DATABASE_URL)
+#     cur = conn.cursor()
+#     cur.execute("DELETE FROM products")
+#     cur.execute("DELETE FROM offers")
+#     conn.commit()
+#     conn.close()
+@pytest.mark.parametrize()
+def test_create_product():
+    response = requests.post(
+        f"{API_BASE_URL}/products",
+        json={"name": "Test Product", "description": "This is a test product"},
+    )
+
+    assert response.status_code == 201
+    assert "id" in response.json()

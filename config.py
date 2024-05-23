@@ -2,7 +2,9 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv("/home/michaluzneni/applifting/applifting-trainee/migrations_/.env")
+
+print(os.getenv("DATABASE_URL"))
 
 
 class Config:
