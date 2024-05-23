@@ -1,9 +1,9 @@
 import os
-
+from os.path import dirname
 from dotenv import load_dotenv
 
-load_dotenv("/home/michaluzneni/applifting/applifting-trainee/migrations_/.env")
-
+load_dotenv()
+print(dirname(__file__))
 print(os.getenv("DATABASE_URL"))
 
 
