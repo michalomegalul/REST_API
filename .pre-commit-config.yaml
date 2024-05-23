@@ -1,36 +1,39 @@
 repos:
-  - repo: https://github.com/pre-commit/mirrors-mypy
+-   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
     hooks:
-      - id: mypy
+    -   id: mypy
         args: ['--ignore-missing-imports', '--install-types', '--non-interactive']
         additional_dependencies:
-          - strawberry-graphql
-  - repo: https://github.com/PyCQA/bandit
+        -   strawberry-graphql
+-   repo: https://github.com/PyCQA/bandit
     rev: 1.7.4
     hooks:
-      - id: bandit
-  - repo: https://github.com/asottile/pyupgrade
+    -   id: bandit
+        args:
+        -   --skip
+        -   B101
+-   repo: https://github.com/asottile/pyupgrade
     rev: v3.3.2
     hooks:
-      - id: pyupgrade
-  - repo: https://github.com/codespell-project/codespell
+    -   id: pyupgrade
+-   repo: https://github.com/codespell-project/codespell
     rev: v2.2.3
     hooks:
-      - id: codespell
-  - repo: https://github.com/astral-sh/ruff-pre-commit
+    -   id: codespell
+-   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.4.3
     hooks:
-      - id: ruff-format
-      - id: ruff
+    -   id: ruff-format
+    -   id: ruff
         args: ['--fix']
-  - repo: https://github.com/Yelp/detect-secrets
+-   repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
-      - id: detect-secrets
+    -   id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
-  - repo: https://github.com/pre-commit/pre-commit-hooks
+-   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer

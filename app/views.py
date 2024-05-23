@@ -67,6 +67,9 @@ def get_products():
             "id": str(product.id),
             "name": product.name,
             "description": product.description,
+            "price": product.offers[-1].price
+            if product.offers
+            else "No offers available",
         }
         for product in products
     ]

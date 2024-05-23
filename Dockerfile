@@ -1,18 +1,12 @@
-FROM python:3.8-slim
+FROM duffn/python-poetry:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+COPY pyproject.toml poetry.lock ./
+
+RUN poetry install --no-root
 
 COPY . .
-
-# ENV FLASK_APP run.py
-# ENV FLASK_RUN_HOST 0.0.0.0
-
-
-
-# CMD ["flask", "run"]
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

@@ -1,4 +1,4 @@
 #!/bin/sh
 
-flask db upgrade
-exec gunicorn -b :5000 --access-logfile - --error-logfile - "app:app"
+poetry run flask db upgrade
+exec poetry run gunicorn -b :5000 --access-logfile - --error-logfile - "app:app"
