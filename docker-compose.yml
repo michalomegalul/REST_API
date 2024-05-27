@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  web:
+  web:  # Renamed service to "web"
     build: .
     ports:
       - "5000:5000"
@@ -15,6 +15,8 @@ services:
       - REFRESH_TOKEN=99f15cd2-c064-4087-b74a-8b35aff72418
     depends_on:
       - db
+    # Updated entrypoint to use your script
+    entrypoint: ["/entrypoint.sh"]
 
   db:
     image: postgres:13
@@ -24,10 +26,3 @@ services:
       POSTGRES_DB: 'product_db'
     ports:
       - "5437:5432"
-  flask:
-    build: .
-    volumes:
-      - .:/app
-    entrypoint: flask
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/product_db
