@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  web:  # Renamed service to "web"
+  web:
     build: .
     ports:
       - "5000:5000"
@@ -15,14 +15,34 @@ services:
       - REFRESH_TOKEN=99f15cd2-c064-4087-b74a-8b35aff72418
     depends_on:
       - db
-    # Updated entrypoint to use your script
-    entrypoint: ["/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # command: >
+
+    #   #!/bin/sh
+    #   poetry run flask db upgrade &&
+    #   exec poetry run gunicorn -b :5000 --access-logfile - --error-logfile - "app:app"
+
 
   db:
     image: postgres:13
+    restart: always
     environment:
       POSTGRES_USER: 'user'
       POSTGRES_PASSWORD: 'password'
       POSTGRES_DB: 'product_db'
     ports:
       - "5437:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d product_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
