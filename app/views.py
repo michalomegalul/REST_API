@@ -1,23 +1,11 @@
 from flask import Blueprint, jsonify, request, current_app
 from .models import db, Offer, Product
-from .tasks import fetch_offers, scheduler, register_product_and_create_offer
+from .tasks import fetch_offers, register_product_and_create_offer
 import logging
-from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
 api_bp = Blueprint("api", __name__)
-
-
-def schedule_register_product_and_create_offer(app, product):
-    with app.app_context():
-        scheduler.add_job(
-            register_product_and_create_offer,
-            args=[app, product],
-            trigger="date",
-            run_date=datetime.now() + timedelta(seconds=5),
-        )
-    logger.info(f"Scheduled registration and offer creation for product: {product.id}")
 
 
 @api_bp.route("/products", methods=["POST"])
@@ -35,7 +23,7 @@ def add_product():
         from app import create_app
 
         app = create_app()
-        schedule_register_product_and_create_offer(app, new_product)
+        register_product_and_create_offer(app, new_product)
 
         return jsonify({"id": new_product.id}), 201
     except Exception as e:

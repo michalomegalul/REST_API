@@ -174,15 +174,52 @@ def save_offer_to_db(app, product_id, offers_data):
 
 def fetch_offers(app):
     with app.app_context():
-        engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+        access_token = get_access_token(app)
+
+        engine = create_engine(current_app.config["SQLALCHEMY_DATABASE_URI"])
         Session = scoped_session(sessionmaker(bind=engine))
         session = Session()
-
         try:
             products = session.query(Product).all()
             for product in products:
-                create_offer(app, product.id)
+                offer_url = f"{current_app.config['OFFERS_SERVICE_URL']}/products/{product.id}/offers"
+                headers = {"Bearer": access_token}
+                logger.info(
+                    f"Fetching offers for product {product.id} with URL: {offer_url} and headers: {headers}"
+                )
+
+                response = requests.get(offer_url, headers=headers)
+                logger.info(f"Response status code: {response.status_code}")
+                logger.info(f"Response content: {response.content}")
+                response.raise_for_status()
+
+                offers_data = response.json()
+                session.query(Offer).filter_by(product_id=product.id).delete()
+                for offer_data in offers_data:
+                    existing_offer = (
+                        session.query(Offer).filter_by(id=offer_data["id"]).first()
+                    )
+                    if existing_offer:
+                        # Update only if there are changes
+                        if (
+                            existing_offer.price != offer_data["price"]
+                            or existing_offer.items_in_stock
+                            != offer_data["items_in_stock"]
+                        ):
+                            existing_offer.price = offer_data["price"]
+                            existing_offer.items_in_stock = offer_data["items_in_stock"]
+                    else:
+                        offer = Offer(
+                            id=offer_data["id"],
+                            price=offer_data["price"],
+                            items_in_stock=offer_data["items_in_stock"],
+                            product_id=product.id,
+                        )
+
+                        session.add(offer)
+            session.commit()
         except Exception as e:
+            session.rollback()
             logger.error(f"Error fetching offers: {e}")
             raise e
         finally:
@@ -194,13 +231,26 @@ scheduler = BackgroundScheduler()
 
 def start_scheduler(app):
     with app.app_context():
-        scheduler.add_job(
-            func=fetch_offers,
-            args=[app],
-            trigger="interval",
-            minutes=30,
-            id="update_offers_job",
-        )
+        engine = create_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+        Session = scoped_session(sessionmaker(bind=engine))
+        session = Session()
+
+        try:
+            products = session.query(Product).all()
+            for product in products:
+                scheduler.add_job(
+                    register_product_and_create_offer,
+                    args=[app, product],
+                    trigger="date",
+                    run_date=datetime.now() + timedelta(seconds=5),
+                )
+
+                scheduler.add_job(
+                    fetch_offers, args=[app], trigger="interval", minutes=30
+                )
+        finally:
+            session.close()
+
     scheduler.start()
     logger.info("Scheduler started.")
 
