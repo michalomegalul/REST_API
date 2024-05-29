@@ -7,7 +7,7 @@ fake = Faker()
 load_dotenv()
 API_BASE_URL = os.environ.get("API_BASE_URL")
 
-num_words = 10000
+num_words = 10
 
 for _ in range(num_words):
     random_word = fake.word()
