@@ -26,8 +26,7 @@ def create_app():
     from .tasks import start_scheduler, stop_scheduler
 
     if app.config["START_SCHEDULER_ON_STARTUP"]:
-        with app.app_context():
-            start_scheduler(app)
+        start_scheduler(app)
     atexit.register(stop_scheduler)
 
     @app.route("/site-map")

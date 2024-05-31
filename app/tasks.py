@@ -75,7 +75,6 @@ def retrieve_stored_token():
 def register_product_and_create_offer(app, product):
     with app.app_context():
         logger.info(f"Attempting to register product: {product.id}")
-        # url = 'https://python.exercise.applifting.cz/api/v1/products/register'
         url = f"{current_app.config['OFFERS_SERVICE_URL']}/products/register"
         headers = {"Bearer": get_access_token(app)}
 
@@ -139,6 +138,7 @@ def save_offer_to_db(app, product_id, offers_data):
         session = Session()
 
         try:
+            lowest_price = float("inf")
             for offer_data in offers_data:
                 existing_offer = (
                     session.query(Offer).filter_by(id=offer_data["id"]).first()
@@ -153,6 +153,8 @@ def save_offer_to_db(app, product_id, offers_data):
                         logger.info(f"Updating existing offer: {offer_data['id']}")
                         existing_offer.price = offer_data["price"]
                         existing_offer.items_in_stock = offer_data["items_in_stock"]
+                        if offer_data["price"] < lowest_price:
+                            lowest_price = offer_data["price"]
                 else:
                     if offer_data["items_in_stock"] != 0:
                         logger.info(f"Adding new offer: {offer_data['id']}")
@@ -163,8 +165,17 @@ def save_offer_to_db(app, product_id, offers_data):
                             product_id=product_id,
                         )
                         session.add(offer)
+                        if offer_data["price"] < lowest_price:
+                            lowest_price = offer_data["price"]
+
+            product = session.query(Product).filter_by(id=product_id).first()
+            if product:
+                product.lowest_price = lowest_price
+
             session.commit()
-            logger.info(f"Offers saved to database for product {product_id}")
+            logger.info(
+                f"Offers and lowest price saved to database for product {product_id}"
+            )
         except Exception as e:
             session.rollback()
             logger.error(f"Error saving offers to the database: {e}")
@@ -193,31 +204,26 @@ def fetch_offers(app):
                 logger.info(f"Response status code: {response.status_code}")
                 logger.info(f"Response content: {response.content}")
                 response.raise_for_status()
-
+                lowest_price = float("inf")
                 offers_data = response.json()
                 session.query(Offer).filter_by(product_id=product.id).delete()
                 for offer_data in offers_data:
-                    existing_offer = (
-                        session.query(Offer).filter_by(id=offer_data["id"]).first()
+                    lowest_price = (
+                        offer_data["price"]
+                        if offer_data["price"] < lowest_price
+                        else lowest_price
                     )
-                    if existing_offer:
-                        # Update only if there are changes
-                        if (
-                            existing_offer.price != offer_data["price"]
-                            or existing_offer.items_in_stock
-                            != offer_data["items_in_stock"]
-                        ):
-                            existing_offer.price = offer_data["price"]
-                            existing_offer.items_in_stock = offer_data["items_in_stock"]
-                    else:
-                        offer = Offer(
-                            id=offer_data["id"],
-                            price=offer_data["price"],
-                            items_in_stock=offer_data["items_in_stock"],
-                            product_id=product.id,
-                        )
 
-                        session.add(offer)
+                    offer = Offer(
+                        id=offer_data["id"],
+                        price=offer_data["price"],
+                        items_in_stock=offer_data["items_in_stock"],
+                        product_id=product.id,
+                    )
+
+                    session.add(offer)
+
+                product.lowest_price = lowest_price
             session.commit()
         except Exception as e:
             session.rollback()
@@ -237,18 +243,7 @@ def start_scheduler(app):
         session = Session()
 
         try:
-            products = session.query(Product).all()
-            for product in products:
-                scheduler.add_job(
-                    register_product_and_create_offer,
-                    args=[app, product],
-                    trigger="date",
-                    run_date=datetime.now() + timedelta(seconds=5),
-                )
-
-                scheduler.add_job(
-                    fetch_offers, args=[app], trigger="interval", minutes=30
-                )
+            scheduler.add_job(fetch_offers, args=[app], trigger="interval", minutes=30)
         finally:
             session.close()
 

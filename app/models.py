@@ -19,8 +19,9 @@ class Product(Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(200), nullable=True)
+    lowest_price = db.Column(db.Integer, nullable=True)
     offers = db.relationship(
-        "Offer", backref="product", lazy=True, cascade="all, delete-orphan"
+        "Offer", backref="product", lazy="dynamic", cascade="all, delete-orphan"
     )
 
 

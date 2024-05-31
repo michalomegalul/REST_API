@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 
 fake = Faker()
 load_dotenv()
-API_BASE_URL = os.environ.get("API_BASE_URL")
+# API_BASE_URL = "http://143.198.124.185:5000/api"
+API_BASE_URL = os.getenv("API_BASE_URL")
 
 num_words = 10
 

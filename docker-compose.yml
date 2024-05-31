@@ -39,3 +39,18 @@ services:
       POSTGRES_DB: 'product_db'
     ports:
       - "5437:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'email@email.com'
+      PGADMIN_DEFAULT_PASSWORD: 'password'
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+volumes:
+  pgadmin_data:

@@ -38,7 +38,7 @@ def update_product(product_id):
         product = Product.query.get_or_404(product_id)
         product.name = data["name"]
         product.description = data["description"]
-        db.session.commit()
+        db.sessionG.commit()
         return jsonify({"message": "Product updated successfully"})
     except Exception as e:
         logger.error(f"Error updating product {product_id}: {e}")
@@ -95,9 +95,7 @@ def get_products():
                 "id": str(product.id),
                 "name": product.name,
                 "description": product.description,
-                "lowest_price": min(offer.price for offer in product.offers)
-                if product.offers
-                else "No offers available",
+                "lowest_price": product.lowest_price,
             }
             for product in products
         ]
@@ -105,3 +103,13 @@ def get_products():
     except Exception as e:
         logger.error(f"Error fetching products: {e}")
         return jsonify({"error": "Failed to fetch products"}), 500
+
+
+@api_bp.route("/products_count", methods=["GET"])
+def get_products_count():
+    try:
+        product_count = Product.query.count()
+        return jsonify({"count": product_count})
+    except Exception as e:
+        logger.error(f"Error fetching product count: {e}")
+        return jsonify({"error": "Failed to fetch product count"}), 500
