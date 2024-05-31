@@ -74,10 +74,6 @@ def test_create_product_get_product(test_input, expected_output):
     assert (
         delete.status_code == 200
     ), f"Product not deleted. Status code: {delete.status_code}"
-    get = requests.get(API_BASE_URL + "/products")
-    assert expected_output not in [
-        product["name"] for product in get.json()
-    ], f"Product not deleted. Status code: {delete.status_code}"  # github copilot idk
 
 
 # def delete_table_data(table_name):

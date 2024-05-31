@@ -1,4 +1,3 @@
-import json
 import os
 import requests
 from faker import Faker
@@ -7,14 +6,8 @@ from dotenv import load_dotenv
 fake = Faker()
 load_dotenv()
 API_BASE_URL = os.environ.get("API_BASE_URL")
-with open("../words_dictionary.json") as file:
-    word_counts = json.load(file)
 
-words = []
-for word, count in word_counts.items():
-    words.extend([word] * count)
-
-num_words = 100
+num_words = 10
 
 for _ in range(num_words):
     random_word = fake.word()
