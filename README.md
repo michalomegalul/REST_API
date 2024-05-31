@@ -15,7 +15,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 1. Clone the repository
     ```
-    git clone [<repository_url>](https://github.com/michalomegalul/applifting-trainee)
+    git clone https://github.com/michalomegalul/applifting-trainee
     ```
 
 2. Build the Docker images
