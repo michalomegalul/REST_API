@@ -1,2 +1,4 @@
 words_dictionary.json
 access_token.txt
+.env
+applifting-trainee/.env
