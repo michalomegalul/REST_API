@@ -11,7 +11,7 @@ services:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://user:password@db:5432/product_db
       - OFFERS_SERVICE_URL=https://python.exercise.applifting.cz/api/v1
-      - REFRESH_TOKEN=99f15cd2-c064-4087-b74a-8b35aff72418
+      - REFRESH_TOKEN=reff
       - FLASK_RUN_HOST=0.0.0.0
       - FLASK_RUN_PORT=5000
       - FLASK_DEBUG=true
