@@ -1,4 +1,4 @@
-FROM duffn/python-poetry:3.11-slim
+FROM duffn/python-poetry:3.9-slim
 
 WORKDIR /app
 
